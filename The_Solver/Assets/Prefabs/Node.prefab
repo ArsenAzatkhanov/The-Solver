@@ -479,7 +479,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   valueText: {fileID: 5537198273294037700}
   layerText: {fileID: 5537198274430637646}
-  shiftValues: {x: 1.5, y: 1.5}
+  shiftValues: {x: 1.5, y: 1}
 --- !u!61 &5537198274984353071
 BoxCollider2D:
   m_ObjectHideFlags: 0

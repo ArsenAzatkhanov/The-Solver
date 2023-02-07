@@ -41,6 +41,7 @@ public class TreeNode
         {
             TreeNode node = SetNode(value, currentLayer);
             node.nodeObject.gameObject.transform.localPosition = Vector3.zero + new Vector3(-node.nodeObject.shiftValues.x, -node.nodeObject.shiftValues.y, 0);
+            SetLineRenderer(node);
             this.leftNode = node;
         }
         else
@@ -57,6 +58,7 @@ public class TreeNode
         {
             TreeNode node = SetNode(value, currentLayer);
             node.nodeObject.gameObject.transform.localPosition = Vector3.zero + new Vector3(node.nodeObject.shiftValues.x, -node.nodeObject.shiftValues.y, 0);
+            SetLineRenderer(node);
             this.rightNode = node;
             
         }
@@ -74,7 +76,16 @@ public class TreeNode
         node.nodeObject = binaryTree.CreateNodeObject();
         node.nodeObject.SetValues(value, currentLayer);
         node.nodeObject.gameObject.transform.parent = this.nodeObject.gameObject.transform;
+        
         return node;
+    }
+
+    void SetLineRenderer(TreeNode node)
+    {
+        LineRenderer lineRenderer = node.nodeObject.gameObject.AddComponent<LineRenderer>();
+        lineRenderer.positionCount = 2;
+        lineRenderer.SetPosition(0, node.nodeObject.transform.position);
+        lineRenderer.SetPosition(1, nodeObject.transform.position);
     }
 
     public void PrintNode()

@@ -6,14 +6,14 @@ using TMPro;
 public class NodePrefab : MonoBehaviour
 {
     [SerializeField] TextMeshPro valueText, layerText;
-    public TreeNode thisNode;
+    public TreeNode connectedTreeNode;
     public Vector2 shiftValues;
 
     public void SetValues(int value, int layer, TreeNode node)
     {
         layerText.text = "Layer: " + layer;
         valueText.text = "Value: " + value;
-        thisNode = node;
+        connectedTreeNode = node;
     }
 
 
@@ -36,7 +36,6 @@ public class NodePrefab : MonoBehaviour
             secondParent = secondNode.GetParent();
         while(true)
         {
-            Debug.Log("Comparing " + firstParent.GetIndex() + " with " + secondParent.GetIndex());
             if(firstParent == secondParent)
                 return firstParent.nodeObject;
             

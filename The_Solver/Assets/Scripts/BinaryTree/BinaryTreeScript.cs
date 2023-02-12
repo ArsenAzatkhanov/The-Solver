@@ -4,6 +4,13 @@ using UnityEngine;
 
 public class BinaryTreeScript : MonoBehaviour
 {
+    public enum LeafSide
+    {
+        Left,
+        Right,
+        Root
+    }
+
     TreeNode rootNode;
     public int[] array;
     public GameObject nodeTemplatePrefab;
@@ -15,19 +22,19 @@ public class BinaryTreeScript : MonoBehaviour
     {
         if (t < array.Length && Input.GetKeyDown(KeyCode.O))
         {
-            AddNode(array[t]);
+            AddNodeInRoot(array[t]);
             t++;
         }
     }
 
 
 
-    public void AddNode( int value)
+    public void AddNodeInRoot( int value)
     {
         int layer = 0;
         if (rootNode == null)
         {
-            rootNode = new TreeNode(value, layer, this, index);
+            rootNode = new TreeNode(value, layer, this, index, LeafSide.Root);
             index++;
             rootNode.nodeObject = CreateNodeObject();
             rootNode.nodeObject.name = "Node V:" + value + " L:" + layer;

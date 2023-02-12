@@ -9,23 +9,25 @@ public class TreeNode
     TreeNode leftNode, rightNode, parentNode;
     BinaryTreeScript binaryTree;
     public NodePrefab nodeObject;
+    public BinaryTreeScript.LeafSide leafSide;
 
-
-    public TreeNode( int value, int layer, BinaryTreeScript binaryTree, int index)
+    public TreeNode( int value, int layer, BinaryTreeScript binaryTree, int index, BinaryTreeScript.LeafSide leafSide)
     {
         this.value = value;
         this.layer = layer;
         this.binaryTree = binaryTree;
         this.index = index;
+        this.leafSide = leafSide;
     }
 
-    public TreeNode(int value, int layer, TreeNode parentNode, BinaryTreeScript binaryTree, int index)
+    public TreeNode(int value, int layer, TreeNode parentNode, BinaryTreeScript binaryTree, int index, BinaryTreeScript.LeafSide leafSide)
     {
         this.value = value;
         this.layer = layer;
         this.parentNode = parentNode;
         this.binaryTree = binaryTree;
         this.index = index;
+        this.leafSide = leafSide;
     }
 
     public TreeNode GetParent()
@@ -52,12 +54,12 @@ public class TreeNode
     {
         if (leftNode == null)
         {
-            TreeNode node = SetNode(value, currentLayer);
+            TreeNode node = SetNode(value, currentLayer, BinaryTreeScript.LeafSide.Left);
             node.nodeObject.gameObject.transform.localPosition = Vector3.zero + new Vector3(-node.nodeObject.shiftValues.x, -node.nodeObject.shiftValues.y, 0);
 
-            CheckCollision(node);
+            ShiftCollision(node);
 
-            SetLineRenderer(node);
+            SetLineRenderer(node, this);
             this.leftNode = node;
         }
         else
@@ -68,17 +70,18 @@ public class TreeNode
 
     }
 
+
     public void SetRight(int value, int currentLayer)
     {
         if (rightNode == null)
         {
-            TreeNode node = SetNode(value, currentLayer);
+            TreeNode node = SetNode(value, currentLayer, BinaryTreeScript.LeafSide.Right);
             node.nodeObject.gameObject.transform.localPosition = Vector3.zero + new Vector3(node.nodeObject.shiftValues.x, -node.nodeObject.shiftValues.y, 0);
 
-            CheckCollision(node);
+            ShiftCollision(node);
 
 
-            SetLineRenderer(node);
+            SetLineRenderer(node, this);
             this.rightNode = node;
         }
         else
@@ -90,12 +93,24 @@ public class TreeNode
     }
 
 
-
-
-
-    TreeNode SetNode(int value, int currentLayer)
+    public TreeNode GetLeft()
     {
-        TreeNode node = new TreeNode(value, currentLayer, this, binaryTree, binaryTree.index);
+        return leftNode;
+    }
+
+
+
+    public TreeNode GetRight()
+    {
+        return rightNode;
+    }
+
+
+
+    TreeNode SetNode(int value, int currentLayer, BinaryTreeScript.LeafSide leafSide)
+    {
+        TreeNode node = new TreeNode(value, currentLayer, this, binaryTree, binaryTree.index, leafSide);
+        Debug.Log(leafSide);
         binaryTree.index++;
         node.nodeObject = binaryTree.CreateNodeObject();
         node.nodeObject.SetValues(value, currentLayer, node);
@@ -107,25 +122,55 @@ public class TreeNode
         return node;
     }
 
-    void CheckCollision(TreeNode node)
+    void ShiftCollision(TreeNode node)
     {
         NodePrefab collidedNode = node.nodeObject.CheckAnotherCollision();
 
-        if (collidedNode != null)
+        if (collidedNode == null) return;
+
+        NodePrefab commonNode = NodePrefab.FindCommonNode(node, collidedNode.connectedTreeNode);
+
+        NodePrefab nodeToShift;
+
+        if (leafSide == BinaryTreeScript.LeafSide.Left)
         {
-            Debug.Log("Collision with: "+ collidedNode.gameObject.name);
-            Debug.Log("First common node: " + NodePrefab.FindCommonNode(node, collidedNode.thisNode));
+            nodeToShift = commonNode.connectedTreeNode.GetRight().nodeObject;
+            nodeToShift.transform.localPosition += new Vector3(nodeToShift.shiftValues.x, 0, 0);
+        }
+
+        else if (leafSide == BinaryTreeScript.LeafSide.Right)
+        {
+            nodeToShift = commonNode.connectedTreeNode.GetLeft().nodeObject;
+            nodeToShift.transform.localPosition += new Vector3(-nodeToShift.shiftValues.x, 0, 0);
+        }
+
+        UpdateLineRenderer(commonNode.connectedTreeNode);
+
+
+    }
+
+    static void SetLineRenderer(TreeNode nodeFrom, TreeNode nodeTo)
+    {
+        LineRenderer lineRenderer = nodeFrom.nodeObject.gameObject.GetComponent<LineRenderer>() ? nodeFrom.nodeObject.gameObject.GetComponent<LineRenderer>() : nodeFrom.nodeObject.gameObject.AddComponent<LineRenderer>();
+        lineRenderer.positionCount = 2;
+        lineRenderer.SetPosition(0, nodeFrom.nodeObject.transform.position);
+        lineRenderer.SetPosition(1, nodeTo.nodeObject.transform.position);
+    }
+
+    public static void UpdateLineRenderer(TreeNode node)
+    {
+        if(node.GetLeft() != null)
+        {
+            SetLineRenderer(node.GetLeft(), node);
+            UpdateLineRenderer(node.GetLeft());
+        }
+        if (node.GetRight() != null)
+        {
+            SetLineRenderer(node.GetRight(), node);
+            UpdateLineRenderer(node.GetRight());
         }
     }
 
-
-    void SetLineRenderer(TreeNode node)
-    {
-        LineRenderer lineRenderer = node.nodeObject.gameObject.AddComponent<LineRenderer>();
-        lineRenderer.positionCount = 2;
-        lineRenderer.SetPosition(0, node.nodeObject.transform.position);
-        lineRenderer.SetPosition(1, nodeObject.transform.position);
-    }
 
     public void PrintNode()
     {

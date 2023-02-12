@@ -5,24 +5,37 @@ using UnityEngine;
 [System.Serializable]
 public class TreeNode 
 {
-    int value, layer;
+    int value, layer, index;
     TreeNode leftNode, rightNode, parentNode;
     BinaryTreeScript binaryTree;
     public NodePrefab nodeObject;
 
-    public TreeNode( int value, int layer, BinaryTreeScript binaryTree)
+
+    public TreeNode( int value, int layer, BinaryTreeScript binaryTree, int index)
     {
         this.value = value;
         this.layer = layer;
         this.binaryTree = binaryTree;
+        this.index = index;
     }
 
-    public TreeNode(int value, int layer, TreeNode parentNode, BinaryTreeScript binaryTree)
+    public TreeNode(int value, int layer, TreeNode parentNode, BinaryTreeScript binaryTree, int index)
     {
         this.value = value;
         this.layer = layer;
         this.parentNode = parentNode;
         this.binaryTree = binaryTree;
+        this.index = index;
+    }
+
+    public TreeNode GetParent()
+    {
+        return parentNode;
+    }
+
+    public int GetIndex()
+    {
+        return index;
     }
 
     public void AddNode( int value, int currentLayer)
@@ -41,6 +54,9 @@ public class TreeNode
         {
             TreeNode node = SetNode(value, currentLayer);
             node.nodeObject.gameObject.transform.localPosition = Vector3.zero + new Vector3(-node.nodeObject.shiftValues.x, -node.nodeObject.shiftValues.y, 0);
+
+            CheckCollision(node);
+
             SetLineRenderer(node);
             this.leftNode = node;
         }
@@ -58,9 +74,12 @@ public class TreeNode
         {
             TreeNode node = SetNode(value, currentLayer);
             node.nodeObject.gameObject.transform.localPosition = Vector3.zero + new Vector3(node.nodeObject.shiftValues.x, -node.nodeObject.shiftValues.y, 0);
+
+            CheckCollision(node);
+
+
             SetLineRenderer(node);
             this.rightNode = node;
-            
         }
         else
         {
@@ -70,15 +89,35 @@ public class TreeNode
   
     }
 
+
+
+
+
     TreeNode SetNode(int value, int currentLayer)
     {
-        TreeNode node = new TreeNode(value, currentLayer, this, binaryTree);
+        TreeNode node = new TreeNode(value, currentLayer, this, binaryTree, binaryTree.index);
+        binaryTree.index++;
         node.nodeObject = binaryTree.CreateNodeObject();
-        node.nodeObject.SetValues(value, currentLayer);
+        node.nodeObject.SetValues(value, currentLayer, node);
         node.nodeObject.gameObject.transform.parent = this.nodeObject.gameObject.transform;
-        
+        node.nodeObject.gameObject.name = "Node V:" + value + " L:" + currentLayer;
+
+
+
         return node;
     }
+
+    void CheckCollision(TreeNode node)
+    {
+        NodePrefab collidedNode = node.nodeObject.CheckAnotherCollision();
+
+        if (collidedNode != null)
+        {
+            Debug.Log("Collision with: "+ collidedNode.gameObject.name);
+            Debug.Log("First common node: " + NodePrefab.FindCommonNode(node, collidedNode.thisNode));
+        }
+    }
+
 
     void SetLineRenderer(TreeNode node)
     {

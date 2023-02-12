@@ -7,28 +7,31 @@ public class BinaryTreeScript : MonoBehaviour
     TreeNode rootNode;
     public int[] array;
     public GameObject nodeTemplatePrefab;
+    int t = 0;
 
-    private void Start()
+    public int index;
+
+    private void Update()
     {
-        print("Start");
-
-        for (int i = 0; i < array.Length; i++)
+        if (t < array.Length && Input.GetKeyDown(KeyCode.O))
         {
-            AddNode(array[i]);
+            AddNode(array[t]);
+            t++;
         }
-
-        PrintTree();
-
     }
+
+
 
     public void AddNode( int value)
     {
         int layer = 0;
         if (rootNode == null)
         {
-            rootNode = new TreeNode(value, layer, this);
+            rootNode = new TreeNode(value, layer, this, index);
+            index++;
             rootNode.nodeObject = CreateNodeObject();
-            rootNode.nodeObject.SetValues(value, layer);
+            rootNode.nodeObject.name = "Node V:" + value + " L:" + layer;
+            rootNode.nodeObject.SetValues(value, layer, rootNode);
         }
 
         else

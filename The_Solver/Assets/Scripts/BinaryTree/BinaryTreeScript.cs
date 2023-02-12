@@ -12,11 +12,28 @@ public class BinaryTreeScript : MonoBehaviour
     }
 
     TreeNode rootNode;
+    [SerializeField] bool autoGen;
+    [SerializeField] int numberAmount, minNum, maxNum;
     public int[] array;
     public GameObject nodeTemplatePrefab;
     int t = 0;
 
     public int index;
+
+    private void Start()
+    {
+        if (!autoGen) return;
+        array = new int[numberAmount];
+        for (int i = 0; i < array.Length; i++)
+        {
+            System.Random random = new System.Random();
+            array[i] = random.Next(minNum, maxNum);
+        }
+
+        //for (int i = 0; i < array.Length; i++)
+        //    AddNodeInRoot(array[i]);
+    }
+
 
     private void Update()
     {

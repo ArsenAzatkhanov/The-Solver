@@ -17,8 +17,10 @@ public class NodePrefab : MonoBehaviour
     }
 
 
-    public NodePrefab CheckAnotherCollision()
+    public NodePrefab FindAnotherCollision()
     {
+        if (connectedTreeNode.leafSide == BinaryTreeScript.LeafSide.Root) return null;
+
         Collider2D[] collisions = Physics2D.OverlapBoxAll(transform.position, transform.localScale, 0);
         NodePrefab compareNode;
         for (int i = 0; i < collisions.Length; i++)
@@ -29,6 +31,20 @@ public class NodePrefab : MonoBehaviour
         }
         return null;
     }
+
+    public bool CheckAnotherCollision()
+    {
+        Collider2D[] collisions = Physics2D.OverlapBoxAll(transform.position, transform.localScale, 0);
+        NodePrefab compareNode;
+        for (int i = 0; i < collisions.Length; i++)
+        {
+            compareNode = collisions[i].gameObject.GetComponent<NodePrefab>();
+            if (compareNode != this)
+                return true;
+        }
+        return false;
+    }
+
 
     public static NodePrefab FindCommonNode(TreeNode firstNode, TreeNode secondNode)
     {
@@ -45,6 +61,12 @@ public class NodePrefab : MonoBehaviour
             firstParent = firstParent.GetParent();
             secondParent = secondParent.GetParent();
         }
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireCube(transform.position, transform.localScale);
     }
 
 }

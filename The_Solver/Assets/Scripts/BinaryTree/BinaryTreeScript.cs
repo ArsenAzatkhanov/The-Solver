@@ -14,11 +14,14 @@ public class BinaryTreeScript : MonoBehaviour
     TreeNode rootNode;
     [SerializeField] bool autoGen;
     [SerializeField] int numberAmount, minNum, maxNum;
+    [SerializeField] List<NodePrefab> nodesWithCollision = new List<NodePrefab>();
     public int[] array;
     public GameObject nodeTemplatePrefab;
     int t = 0;
 
     public int index;
+
+
 
     private void Start()
     {
@@ -30,21 +33,34 @@ public class BinaryTreeScript : MonoBehaviour
             array[i] = random.Next(minNum, maxNum);
         }
 
-        //for (int i = 0; i < array.Length; i++)
-        //    AddNodeInRoot(array[i]);
-    }
 
+    }
 
     private void Update()
     {
-        if (t < array.Length && Input.GetKeyDown(KeyCode.O))
+
+        if(Input.GetKeyDown(KeyCode.O))
         {
-            AddNodeInRoot(array[t]);
-            t++;
+            if(t < array.Length)
+            {
+                AddNodeInRoot(array[t]);
+                t++;
+            }
+
         }
     }
 
 
+
+    public TreeNode GetRoot()
+    {
+        return rootNode;
+    }
+
+    public void AddElemInCol(NodePrefab nodePrefab)
+    {
+        nodesWithCollision.Add(nodePrefab);
+    }
 
     public void AddNodeInRoot( int value)
     {
@@ -57,12 +73,13 @@ public class BinaryTreeScript : MonoBehaviour
             rootNode.nodeObject.name = "Node V:" + value + " L:" + layer;
             rootNode.nodeObject.SetValues(value, layer, rootNode);
         }
-
         else
         {
             layer++;
             rootNode.AddNode(value, layer);
         }
+
+        StartCoroutine(FixCollisions());
     }
 
     void PrintTree()
@@ -71,6 +88,26 @@ public class BinaryTreeScript : MonoBehaviour
         {
             rootNode.PrintNode();
         }
+    }
+
+    void CheckCollisionsInTree()
+    {
+        nodesWithCollision = new List<NodePrefab>();
+        if (rootNode != null)
+            rootNode.CheckNodeCollision();
+    }
+
+    public IEnumerator FixCollisions()
+    {
+        do
+        {
+            CheckCollisionsInTree();
+            if (nodesWithCollision.Count == 0) break;
+            for (int i = 0; i < nodesWithCollision.Count; i++)
+                TreeNode.ShiftCollision(nodesWithCollision[i].connectedTreeNode);
+            yield return null;
+        } while (nodesWithCollision.Count > 0);
+
     }
 
     public NodePrefab CreateNodeObject()

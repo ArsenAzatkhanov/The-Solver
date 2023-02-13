@@ -46,6 +46,7 @@ public class NodePrefab : MonoBehaviour
     }
 
 
+
     public static NodePrefab FindCommonNode(TreeNode firstNode, TreeNode secondNode)
     {
         TreeNode firstParent = firstNode.GetParent(), 
@@ -62,6 +63,7 @@ public class NodePrefab : MonoBehaviour
             secondParent = secondParent.GetParent();
         }
     }
+
 
     private void OnDrawGizmos()
     {

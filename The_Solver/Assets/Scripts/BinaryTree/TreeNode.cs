@@ -46,8 +46,7 @@ public class TreeNode
             SetRight(value, currentLayer);
         else if (value < this.value)
             SetLeft(value, currentLayer);
-        else
-            return;
+
     }
 
     public void SetLeft( int value, int currentLayer)
@@ -57,10 +56,11 @@ public class TreeNode
             TreeNode node = SetNode(value, currentLayer, BinaryTreeScript.LeafSide.Left);
             node.nodeObject.gameObject.transform.localPosition = Vector3.zero + new Vector3(-node.nodeObject.shiftValues.x, -node.nodeObject.shiftValues.y, 0);
 
-            ShiftCollision(node);
+            //ShiftCollision(node);
 
             SetLineRenderer(node, this);
             this.leftNode = node;
+
         }
         else
         {
@@ -77,19 +77,19 @@ public class TreeNode
         {
             TreeNode node = SetNode(value, currentLayer, BinaryTreeScript.LeafSide.Right);
             node.nodeObject.gameObject.transform.localPosition = Vector3.zero + new Vector3(node.nodeObject.shiftValues.x, -node.nodeObject.shiftValues.y, 0);
-
-            ShiftCollision(node);
-
+            
+            //ShiftCollision(node);
 
             SetLineRenderer(node, this);
             this.rightNode = node;
+            
         }
         else
         {
             currentLayer++;
             rightNode.AddNode(value, currentLayer);
         }
-  
+
     }
 
 
@@ -116,12 +116,10 @@ public class TreeNode
         node.nodeObject.gameObject.transform.parent = this.nodeObject.gameObject.transform;
         node.nodeObject.gameObject.name = "Node V:" + value + " L:" + currentLayer;
 
-
-
         return node;
     }
 
-    public void ShiftCollision(TreeNode node)
+    public static void ShiftCollision(TreeNode node)
     {
         NodePrefab collidedNode = node.nodeObject.FindAnotherCollision();
 
@@ -134,21 +132,19 @@ public class TreeNode
         if (node.leafSide == BinaryTreeScript.LeafSide.Left)
         {
             nodeToShift = commonNode.connectedTreeNode.GetRight().nodeObject;
-            nodeToShift.transform.localPosition += new Vector3(nodeToShift.shiftValues.x * 2, 0, 0);
-            Debug.Log("Moved " + nodeToShift.gameObject.name + " to right");
+            nodeToShift.transform.localPosition += new Vector3(nodeToShift.shiftValues.x, 0, 0);
         }
 
         else if (node.leafSide == BinaryTreeScript.LeafSide.Right)
         {
             nodeToShift = commonNode.connectedTreeNode.GetLeft().nodeObject;
-            nodeToShift.transform.localPosition += new Vector3(-nodeToShift.shiftValues.x * 2, 0, 0);
-            Debug.Log("Moved " + nodeToShift.gameObject.name + " to left");
+            nodeToShift.transform.localPosition += new Vector3(-nodeToShift.shiftValues.x, 0, 0);
         }
 
         UpdateLineRenderer(commonNode.connectedTreeNode);
-
-
     }
+
+    
 
     static void SetLineRenderer(TreeNode nodeFrom, TreeNode nodeTo)
     {
@@ -172,10 +168,20 @@ public class TreeNode
         }
     }
 
+    public void CheckNodeCollision()
+    {
+        if (nodeObject.FindAnotherCollision() != null)
+            binaryTree.AddElemInCol(nodeObject.FindAnotherCollision());
+
+        if (leftNode != null)
+            leftNode.CheckNodeCollision();
+        if (rightNode != null)
+            rightNode.CheckNodeCollision();
+    }
 
     public void PrintNode()
     {
-        Debug.Log("Value: " + this.value + ";Layer: " + this.layer);
+        Debug.Log("Value: " + this.value + ";Layer: " + this.layer + ";Index: "+ this.index);
         if (leftNode != null)
             leftNode.PrintNode();
         if (rightNode != null)
